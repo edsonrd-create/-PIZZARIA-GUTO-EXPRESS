@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guto Express - Sistema Completo de Pizzaria</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1f2430;
+      --card: #202634;
+      --soft: #2b3344;
+      --text: #eef2f7;
+      --muted: #a8b2c3;
+      --accent: #ffb703;
+      --accent-2: #fb8500;
+      --danger: #ef476f;
+      --ok: #06d6a0;
+      --info: #4cc9f0;
+      --warn: #ffd166;
+      --shadow: 0 10px 30px rgba(0,0,0,.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #0d1015 0%, #121722 100%);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: rgba(10, 12, 16, 0.96);
+      border-right: 1px solid rgba(255,255,255,.06);
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding: 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,183,3,.15), rgba(251,133,0,.14));
+      box-shadow: var(--shadow);
+    }
+
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #111;
+      font-weight: 700;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.1;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .menu-title {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin: 18px 0 8px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      border: 0;
+      color: var(--text);
+      text-align: left;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      border-radius: 14px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 15px;
+      transition: .2s ease;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(255,255,255,.07);
+      transform: translateX(2px);
+    }
+
+    .content {
+      padding: 22px;
+      overflow: auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn,
+    select,
+    input,
+    textarea {
+      border: 1px solid rgba(255,255,255,.08);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    .btn {
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(255,183,3,.18), rgba(251,133,0,.18));
+      font-weight: 700;
+    }
+
+    .btn.secondary { background: var(--panel); }
+    .btn.success { background: rgba(6,214,160,.18); }
+    .btn.danger { background: rgba(239,71,111,.18); }
+    .btn.info { background: rgba(76,201,240,.18); }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.kpi { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0,1fr)); }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3, .card h4 {
+      margin-top: 0;
+    }
+
+    .kpi-card .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .kpi-card .value {
+      font-size: 30px;
+      font-weight: 800;
+      margin: 8px 0 4px;
+    }
+
+    .kpi-card .delta {
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    .section {
+      display: none;
+      animation: fade .25s ease;
+    }
+
+    .section.active { display: block; }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .order-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .order-head,
+    .row,
+    .row-between {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+    }
+
+    .chip.pending { color: var(--warn); }
+    .chip.prep { color: var(--info); }
+    .chip.ready { color: var(--ok); }
+    .chip.delivery { color: var(--accent); }
+    .chip.cancel { color: var(--danger); }
+
+    .muted { color: var(--muted); }
+
+    .items-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .item-line {
+      background: rgba(255,255,255,.03);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(260px,1fr));
+      gap: 16px;
+      overflow: auto;
+    }
+
+    .kanban-col {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 20px;
+      padding: 14px;
+      min-height: 420px;
+    }
+
+    .kanban-col h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .table th,
+    .table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table th { color: var(--muted); }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+
+    .field-grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    .customer-card,
+    .catalog-card,
+    .route-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+    }
+
+    .number {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    pre.schema {
+      white-space: pre-wrap;
+      background: #0c0f14;
+      border-radius: 16px;
+      padding: 16px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.06);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #d7e3f4;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pizza-size-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pizza-icon {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1180px) {
+      .grid.kpi, .grid.two, .grid.three, .grid.four, .field-grid, .field-grid.three, .kanban {
+        grid-template-columns: 1fr;
+      }
+      .app { grid-template-columns: 1fr; }
+      .sidebar { height: auto; position: relative; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">&#127829;</div>
+        <div>
+          <h1>Guto Express</h1>
+          <p>Sistema Completo de Pizzaria</p>
+        </div>
+      </div>
+
+      <div class="menu-title">Operação</div>
+      <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+      <button class="nav-btn" data-section="orders">Gestor de Pedidos</button>
+      <button class="nav-btn" data-section="kds">KDS Produção</button>
+      <button class="nav-btn" data-section="dispatch">Expedição</button>
+      <button class="nav-btn" data-section="routing">Roteirização</button>
+      <button class="nav-btn" data-section="pdv">PDV Balcão</button>
+      <button class="nav-btn" data-section="cashier">Caixa</button>
+
+      <div class="menu-title">Cadastros</div>
+      <button class="nav-btn" data-section="catalog">Cardápio</button>
+      <button class="nav-btn" data-section="customers">Clientes</button>
+      <button class="nav-btn" data-section="integrations">Integrações</button>
+      <button class="nav-btn" data-section="settings">Configurações</button>
+      <button class="nav-btn" data-section="database">Banco de Dados</button>
+    </aside>
+
+    <main class="content">
+      <section id="dashboard" class="section active">
+        <div class="topbar">
+          <div>
+            <h2>Dashboard Operacional</h2>
+            <p>Visão rápida da pizzaria em tempo real.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn success">Novo Pedido</button>
+            <button class="btn info">Atualizar Painel</button>
+          </div>
+        </div>
+
+        <div class="grid kpi">
+          <div class="card kpi-card">
+            <div class="label">Pedidos Hoje</div>
+            <div class="value" id="kpiOrders">0</div>
+            <div class="delta">+12% em relação a ontem</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="label">Faturamento</div>
+            <div class="value" id="kpiRevenue">R$ 0,00</div>
+            <div class="delta">Canal líder: Aplicativo</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="label">Em Produção</div>
+            <div class="value" id="kpiPrep">0</div>
+            <div class="delta">Monitoramento em tempo real</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="label">Entregas Ativas</div>
+            <div class="value" id="kpiDelivery">0</div>
+            <div class="delta">Rotas em andamento</div>
+          </div>
+        </div>
+
+        <div class="grid two" style="margin-top:16px;">
+          <div class="card">
+            <h3>Últimos Pedidos</h3>
+            <div id="dashboardOrders" class="grid"></div>
+          </div>
+          <div class="card">
+            <h3>Resumo da Operação</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Métrica</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Tempo médio de preparo</td><td>18 min</td></tr>
+                <tr><td>Ticket médio</td><td>R$ 61,90</td></tr>
+                <tr><td>Pedidos app/site</td><td>61%</td></tr>
+                <tr><td>Pedidos WhatsApp</td><td>14%</td></tr>
+                <tr><td>Pedidos balcão</td><td>9%</td></tr>
+                <tr><td>Integrações externas</td><td>16%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="orders" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Gestor de Pedidos</h2>
+            <p>Controle total dos pedidos com espelho completo.</p>
+          </div>
+          <div class="toolbar">
+            <select id="statusFilter">
+              <option value="all">Todos os status</option>
+              <option value="pending">Pendente</option>
+              <option value="confirmed">Confirmado</option>
+              <option value="in_preparation">Em preparo</option>
+              <option value="ready">Pronto</option>
+              <option value="on_delivery">Saiu para entrega</option>
+            </select>
+          </div>
+        </div>
+        <div id="ordersList" class="grid"></div>
+      </section>
+
+      <section id="kds" class="section">
+        <div class="topbar">
+          <div>
+            <h2>KDS Produção</h2>
+            <p>Fluxo visual por etapa: preparo, forno, embalagem e pronto.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn secondary">Tela Cozinha</button>
+          </div>
+        </div>
+        <div class="kanban" id="kdsBoard"></div>
+      </section>
+
+      <section id="dispatch" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Expedição</h2>
+            <p>Pedidos prontos para retirada e entrega.</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <h3>Prontos para Retirada</h3>
+            <div id="pickupReady" class="grid"></div>
+          </div>
+          <div class="card">
+            <h3>Prontos para Entrega</h3>
+            <div id="deliveryReady" class="grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="routing" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Roteirização</h2>
+            <p>Agrupamento por região, motoboy e sequência de parada.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn">Gerar Rota</button>
+          </div>
+        </div>
+        <div id="routeList" class="grid two"></div>
+      </section>
+
+      <section id="pdv" class="section">
+        <div class="topbar">
+          <div>
+            <h2>PDV Balcão</h2>
+            <p>Venda rápida para balcão, retirada e telefone.</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <h3>Novo Pedido PDV</h3>
+            <div class="field-grid">
+              <div class="field">
+                <label>Cliente</label>
+                <input value="Cliente Balcão" />
+              </div>
+              <div class="field">
+                <label>Tipo</label>
+                <select>
+                  <option>Retirada</option>
+                  <option>Balcão</option>
+                  <option>Telefone</option>
+                </select>
+              </div>
+            </div>
+            <div class="field" style="margin-top:12px;">
+              <label>Itens</label>
+              <textarea>1x Pizza Grande 2 Sabores
+- Calabresa com cebola
+- Frango catupiry
+- Borda cheddar
+1x Coca-Cola 2L</textarea>
+            </div>
+            <div class="field-grid three" style="margin-top:12px;">
+              <div class="field"><label>Subtotal</label><input value="59,99" /></div>
+              <div class="field"><label>Desconto</label><input value="0,00" /></div>
+              <div class="field"><label>Total</label><input value="59,99" /></div>
+            </div>
+            <div class="row" style="margin-top:14px;">
+              <button class="btn success">Finalizar Venda</button>
+              <button class="btn secondary">Imprimir</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Últimas Vendas PDV</h3>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Venda</th>
+                  <th>Cliente</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>#PDV-1009</td><td>Retirada Balcão</td><td>R$ 32,00</td><td>Finalizado</td></tr>
+                <tr><td>#PDV-1008</td><td>Marcos</td><td>R$ 74,90</td><td>Finalizado</td></tr>
+                <tr><td>#PDV-1007</td><td>Telefone</td><td>R$ 58,00</td><td>Finalizado</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="cashier" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Caixa</h2>
+            <p>Abertura, fechamento, sangria, suprimento e conferência.</p>
+          </div>
+        </div>
+        <div class="grid three">
+          <div class="card">
+            <h3>Resumo do Caixa</h3>
+            <div class="mini-grid">
+              <div><div class="muted">Saldo inicial</div><div class="number">R$ 200,00</div></div>
+              <div><div class="muted">Saldo esperado</div><div class="number">R$ 1.942,50</div></div>
+              <div><div class="muted">Dinheiro</div><div class="number">R$ 428,00</div></div>
+              <div><div class="muted">Pix</div><div class="number">R$ 816,50</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Movimentações</h3>
+            <table class="table">
+              <thead><tr><th>Tipo</th><th>Valor</th><th>Hora</th></tr></thead>
+              <tbody>
+                <tr><td>Venda</td><td>R$ 74,90</td><td>19:10</td></tr>
+                <tr><td>Venda</td><td>R$ 52,00</td><td>19:13</td></tr>
+                <tr><td>Sangria</td><td>R$ 100,00</td><td>19:18</td></tr>
+                <tr><td>Suprimento</td><td>R$ 50,00</td><td>19:24</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Ações</h3>
+            <div class="grid">
+              <button class="btn">Abrir Caixa</button>
+              <button class="btn secondary">Registrar Sangria</button>
+              <button class="btn secondary">Registrar Suprimento</button>
+              <button class="btn danger">Fechar Caixa</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="catalog" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Cardápio</h2>
+            <p>Produtos, pizzas, sabores, bordas, combos e adicionais.</p>
+          </div>
+        </div>
+        <div id="catalogList" class="grid three"></div>
+      </section>
+
+      <section id="customers" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Clientes</h2>
+            <p>Cadastro com histórico e endereços.</p>
+          </div>
+        </div>
+        <div id="customerList" class="grid three"></div>
+      </section>
+
+      <section id="integrations" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Integrações</h2>
+            <p>Conectores, importação de pedidos e logs.</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <h3>Contas Integradas</h3>
+            <table class="table">
+              <thead>
+                <tr><th>Canal</th><th>Status</th><th>Última sincronização</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Aplicativo Próprio</td><td>Ativo</td><td>Agora</td></tr>
+                <tr><td>Site</td><td>Ativo</td><td>Agora</td></tr>
+                <tr><td>WhatsApp</td><td>Ativo</td><td>19:05</td></tr>
+                <tr><td>iFood</td><td>Ativo</td><td>19:04</td></tr>
+                <tr><td>99Food</td><td>Inativo</td><td>18:52</td></tr>
+                <tr><td>Neemo</td><td>Ativo</td><td>18:58</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Logs de Integração</h3>
+            <table class="table">
+              <thead>
+                <tr><th>Evento</th><th>Pedido</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>order.imported</td><td>IFOOD-44291</td><td>success</td></tr>
+                <tr><td>menu.sync</td><td>-</td><td>success</td></tr>
+                <tr><td>order.status.sent</td><td>WEB-10024</td><td>success</td></tr>
+                <tr><td>order.imported</td><td>99-4401</td><td>warning</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="settings" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Configurações</h2>
+            <p>Loja, horários, taxas, impressoras e parâmetros.</p>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="card">
+            <h3>Configuração da Loja</h3>
+            <div class="field-grid">
+              <div class="field"><label>Nome</label><input value="Guto Express" /></div>
+              <div class="field"><label>WhatsApp</label><input value="(41) 99999-9999" /></div>
+            </div>
+            <div class="field-grid three" style="margin-top:12px;">
+              <div class="field"><label>Abertura</label><input value="17:00" /></div>
+              <div class="field"><label>Fechamento</label><input value="23:59" /></div>
+              <div class="field"><label>Tempo médio</label><input value="18 min" /></div>
+            </div>
+            <div class="field" style="margin-top:12px;">
+              <label>Chave Pix</label>
+              <input value="pix@gutoexpress.com.br" />
+            </div>
+          </div>
+          <div class="card">
+            <h3>Taxas de Entrega</h3>
+            <table class="table">
+              <thead><tr><th>Bairro</th><th>Faixa</th><th>Taxa</th></tr></thead>
+              <tbody>
+                <tr><td>Maracanã</td><td>0-2 km</td><td>R$ 5,00</td></tr>
+                <tr><td>Campo Pequeno</td><td>2-3 km</td><td>R$ 7,00</td></tr>
+                <tr><td>Centro</td><td>3-5 km</td><td>R$ 9,00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="database" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Banco de Dados</h2>
+            <p>Modelo lógico principal usado por este sistema.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Estrutura Base</h3>
+          <pre class="schema" id="databaseSchema"></pre>
+          <div class="footer-note">Esta área representa a engenharia de dados principal: clientes, cardápio, pedidos, pagamentos, caixa, KDS, entregas, rotas e integrações.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const db = {
+      stores: [
+        { id: 'store_1', name: 'Guto Express', city: 'Colombo', state: 'PR' }
+      ],
+      customers: [
+        { id: 'c1', name: 'Fernanda', phone: '(41) 9526-4199', neighborhood: 'Campo Pequeno', orders: 30 },
+        { id: 'c2', name: 'Marcos Silva', phone: '(41) 99911-2233', neighborhood: 'Maracanã', orders: 12 },
+        { id: 'c3', name: 'Ana Paula', phone: '(41) 98822-4400', neighborhood: 'Centro', orders: 18 }
+      ],
+      pizzaSizes: [
+        { id: 'sz1', name: 'Broto', code: 'broto', maxFlavors: 1, slices: 4 },
+        { id: 'sz2', name: 'Média', code: 'media', maxFlavors: 2, slices: 6 },
+        { id: 'sz3', name: 'Grande', code: 'grande', maxFlavors: 2, slices: 8 },
+        { id: 'sz4', name: 'Big', code: 'big', maxFlavors: 3, slices: 12 },
+        { id: 'sz5', name: 'Gigante', code: 'gigante', maxFlavors: 4, slices: 16 }
+      ],
+      catalog: [
+        { id: 'p1', type: 'pizza', name: 'Pizza Grande 2 Sabores', price: 49.99, category: 'Pizzas', prep: '18 min' },
+        { id: 'p2', type: 'pizza', name: 'Pizza Família 3 Sabores', price: 69.99, category: 'Pizzas', prep: '24 min' },
+        { id: 'p3', type: 'drink', name: 'Coca-Cola 2L', price: 12.00, category: 'Bebidas', prep: '1 min' },
+        { id: 'p4', type: 'combo', name: 'Combo Pizza + Refri', price: 59.99, category: 'Combos', prep: '18 min' },
+        { id: 'p5', type: 'addon', name: 'Borda Cheddar', price: 10.00, category: 'Adicionais', prep: '0 min' },
+        { id: 'p6', type: 'addon', name: 'Borda Chocolate', price: 10.00, category: 'Adicionais', prep: '0 min' }
+      ],
+      routes: [
+        {
+          id: 'r1',
+          driver: 'Carlos Moto',
+          status: 'in_progress',
+          region: 'Campo Pequeno / Maracanã',
+          totalOrders: 3,
+          totalDistance: '7.2 km',
+          eta: '32 min',
+          stops: ['Fernanda - Campo Pequeno', 'Marcos - Maracanã', 'Ana - Centro']
+        },
+        {
+          id: 'r2',
+          driver: 'Rafael Moto',
+          status: 'planned',
+          region: 'Centro',
+          totalOrders: 2,
+          totalDistance: '4.0 km',
+          eta: '19 min',
+          stops: ['Juliana - Centro', 'Fabio - Centro']
+        }
+      ],
+      orders: [
+        {
+          id: 'o1001',
+          number: 1001,
+          customer: 'Fernanda',
+          phone: '(41) 9526-4199',
+          channel: 'WhatsApp',
+          origin: 'whatsapp',
+          type: 'delivery',
+          status: 'in_preparation',
+          address: 'Avenida Brasília, 259, Campo Pequeno, 83404670',
+          neighborhood: 'Campo Pequeno',
+          distance: '2km - 3km',
+          deliveryFee: 7,
+          payment: 'Entregador',
+          total: 59.99,
+          items: [
+            '1x PIZZA PROMO — Pizza grande 10 fatias 2 sabores + refri 2 litros',
+            'Sabores: Calabresa com cebola / Frango catupiry',
+            'Adicional: Borda chocolate ao leite — R$ 10,00',
+            'Item vinculado: Coca-Cola 2L — R$ 0,00'
+          ],
+          notes: 'Cliente pediu caprichar na cebola.',
+          stage: 'preparation'
+        },
+        {
+          id: 'o1002',
+          number: 1002,
+          customer: 'Marcos Silva',
+          phone: '(41) 99911-2233',
+          channel: 'Aplicativo',
+          origin: 'app',
+          type: 'delivery',
+          status: 'ready',
+          address: 'Rua Angelina Cavalli, 736, Maracanã',
+          neighborhood: 'Maracanã',
+          distance: '0km - 2km',
+          deliveryFee: 5,
+          payment: 'Pix',
+          total: 74.90,
+          items: [
+            '1x Pizza Família 3 sabores',
+            'Sabores: Portuguesa / Bacon / Moda da Casa',
+            'Adicional: Borda cheddar — R$ 10,00',
+            '1x Guaraná 2L — R$ 8,00'
+          ],
+          notes: 'Sem azeitona em metade da pizza.',
+          stage: 'ready'
+        },
+        {
+          id: 'o1003',
+          number: 1003,
+          customer: 'Ana Paula',
+          phone: '(41) 98822-4400',
+          channel: 'Balcão',
+          origin: 'counter',
+          type: 'pickup',
+          status: 'confirmed',
+          address: 'Retirada no balcão',
+          neighborhood: '-',
+          distance: '-',
+          deliveryFee: 0,
+          payment: 'Cartão',
+          total: 32.00,
+          items: [
+            '1x Pizza Broto Calabresa',
+            '1x Refrigerante lata'
+          ],
+          notes: 'Cliente chega em 15 minutos.',
+          stage: 'oven'
+        },
+        {
+          id: 'o1004',
+          number: 1004,
+          customer: 'Juliana Costa',
+          phone: '(41) 97722-8811',
+          channel: 'iFood',
+          origin: 'ifood',
+          type: 'delivery',
+          status: 'on_delivery',
+          address: 'Rua Central, 88, Centro',
+          neighborhood: 'Centro',
+          distance: '3km - 5km',
+          deliveryFee: 9,
+          payment: 'Online',
+          total: 67.50,
+          items: [
+            '1x Combo Pizza + Refri',
+            'Sabores: Frango catupiry / Calabresa'
+          ],
+          notes: 'Prédio azul, interfone 201.',
+          stage: 'dispatch'
+        }
+      ],
+      cashier: {
+        openingBalance: 200,
+        expectedBalance: 1942.5,
+        cash: 428,
+        pix: 816.5
+      }
+    };
+
+    const schemaText = {
+      modules: [
+        'companies', 'stores', 'store_addresses', 'store_hours',
+        'users', 'roles',
+        'customers', 'customer_addresses',
+        'sales_channels', 'integration_accounts', 'integration_logs',
+        'categories', 'products', 'pizza_sizes', 'pizza_flavors', 'pizza_crusts', 'addons', 'ingredients',
+        'carts', 'cart_items',
+        'orders', 'order_items', 'order_item_pizzas', 'order_item_pizza_flavors', 'order_timeline', 'order_payments',
+        'kitchen_stations', 'kitchen_order_stages', 'kitchen_item_tickets',
+        'drivers', 'delivery_zones', 'delivery_fee_rules', 'routes', 'route_stops',
+        'cash_registers', 'cash_sessions', 'cash_movements', 'pdv_sales', 'pdv_sale_items',
+        'printers', 'print_jobs',
+        'stock_items', 'stock_movements',
+        'settings', 'audit_logs'
+      ],
+      mainRelations: [
+        'stores -> customers, products, orders, drivers, routes, cash_registers',
+        'customers -> customer_addresses, carts, orders',
+        'products -> addons, ingredients, order_items, cart_items',
+        'orders -> order_items, order_payments, order_timeline, route_stops',
+        'routes -> route_stops -> orders',
+        'cash_sessions -> cash_movements',
+        'pdv_sales -> pdv_sale_items',
+        'kitchen_stations -> kitchen_item_tickets'
+      ],
+      businessRules: [
+        'pedido deve guardar snapshot completo do cliente, endereço, itens e preços',
+        'pizza: Broto 1 sabor; Média e Grande 2 sabores; Big até 3; Gigante até 4; borda à parte',
+        'taxa pode ser definida por bairro, faixa km ou valor fixo',
+        'pedido de retirada não gera taxa',
+        'KDS trabalha por estágios operacionais',
+        'rota pode agrupar vários pedidos no mesmo sentido',
+        'caixa registra venda, sangria, suprimento e ajustes',
+        'integrações precisam manter log de entrada e retorno'
+      ]
+    };
+
+    const money = value => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    function pizzaDivisionIconSvg(maxFlavors) {
+      const n = Math.min(4, Math.max(1, maxFlavors));
+      const lines = {
+        2: '<line x1="24" y1="4" x2="24" y2="44" stroke="var(--accent)" stroke-width="1.5"/>',
+        3: '<g stroke="var(--accent)" stroke-width="1.5" fill="none"><line x1="24" y1="24" x2="24" y2="4"/><line x1="24" y1="24" x2="6.7" y2="34"/><line x1="24" y1="24" x2="41.3" y2="34"/></g>',
+        4: '<g stroke="var(--accent)" stroke-width="1.5"><line x1="24" y1="4" x2="24" y2="44"/><line x1="4" y1="24" x2="44" y2="24"/></g>'
+      };
+      const inner = lines[n] || '';
+      return `<svg class="pizza-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>${inner}</svg>`;
+    }
+
+    function renderDashboard() {
+      document.getElementById('kpiOrders').textContent = db.orders.length;
+      document.getElementById('kpiRevenue').textContent = money(db.orders.reduce((sum, o) => sum + o.total, 0));
+      document.getElementById('kpiPrep').textContent = db.orders.filter(o => ['confirmed', 'in_preparation'].includes(o.status)).length;
+      document.getElementById('kpiDelivery').textContent = db.orders.filter(o => o.status === 'on_delivery').length;
+
+      const holder = document.getElementById('dashboardOrders');
+      holder.innerHTML = db.orders.slice(0, 3).map(orderCard).join('');
+    }
+
+    function statusChip(status) {
+      const labels = {
+        pending: ['Pendente', 'pending'],
+        confirmed: ['Confirmado', 'prep'],
+        in_preparation: ['Em preparo', 'prep'],
+        ready: ['Pronto', 'ready'],
+        on_delivery: ['Saiu para entrega', 'delivery'],
+        cancelled: ['Cancelado', 'cancel']
+      };
+      const [label, cls] = labels[status] || [status, 'pending'];
+      return `<span class="chip ${cls}">${label}</span>`;
+    }
+
+    function orderCard(order) {
+      return `
+        <div class="order-card">
+          <div class="order-head">
+            <div>
+              <strong>#${order.number} - ${order.customer}</strong><br>
+              <span class="muted">${order.channel} • ${order.type === 'delivery' ? 'Delivery' : 'Retirada'}</span>
+            </div>
+            <div class="row">${statusChip(order.status)} <span class="chip">${money(order.total)}</span></div>
+          </div>
+          <div class="row-between">
+            <div class="muted">Telefone: ${order.phone}</div>
+            <div class="muted">Pagamento: ${order.payment}</div>
+          </div>
+          <div class="muted">${order.address}</div>
+          <div class="items-list">
+            ${order.items.map(i => `<div class="item-line">${i}</div>`).join('')}
+          </div>
+          <div class="row-between">
+            <div class="muted">Obs: ${order.notes}</div>
+            <div class="row">
+              <button class="btn secondary">Detalhes</button>
+              <button class="btn success">Avançar</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOrders(filter = 'all') {
+      const list = document.getElementById('ordersList');
+      const filtered = filter === 'all' ? db.orders : db.orders.filter(o => o.status === filter);
+      list.innerHTML = filtered.map(orderCard).join('');
+    }
+
+    function renderKDS() {
+      const columns = [
+        { title: 'Em preparo', stage: 'preparation', statuses: ['confirmed', 'in_preparation'] },
+        { title: 'Forno', stage: 'oven', statuses: [] },
+        { title: 'Embalagem', stage: 'packing', statuses: [] },
+        { title: 'Pronto', stage: 'ready', statuses: ['ready'] }
+      ];
+
+      const board = document.getElementById('kdsBoard');
+      board.innerHTML = columns.map(col => {
+        const cards = db.orders.filter(order => order.stage === col.stage || col.statuses.includes(order.status));
+        return `
+          <div class="kanban-col">
+            <h3>${col.title}</h3>
+            <div class="grid">
+              ${cards.map(order => `
+                <div class="order-card">
+                  <div class="row-between">
+                    <strong>#${order.number}</strong>
+                    ${statusChip(order.status)}
+                  </div>
+                  <div>${order.customer}</div>
+                  <div class="muted">${order.items[0]}</div>
+                  <div class="row-between">
+                    <span class="muted">${order.channel}</span>
+                    <button class="btn success">Preparado</button>
+                  </div>
+                </div>
+              `).join('') || '<div class="muted">Sem pedidos nesta etapa.</div>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDispatch() {
+      const pickup = db.orders.filter(o => o.type === 'pickup' && ['ready', 'confirmed'].includes(o.status));
+      const delivery = db.orders.filter(o => o.type === 'delivery' && o.status === 'ready');
+      document.getElementById('pickupReady').innerHTML = pickup.map(orderCard).join('') || '<div class="muted">Nenhum pedido de retirada pronto.</div>';
+      document.getElementById('deliveryReady').innerHTML = delivery.map(orderCard).join('') || '<div class="muted">Nenhum pedido delivery pronto.</div>';
+    }
+
+    function renderRoutes() {
+      const holder = document.getElementById('routeList');
+      holder.innerHTML = db.routes.map(route => `
+        <div class="route-card">
+          <div class="row-between">
+            <h3 style="margin:0;">${route.driver}</h3>
+            <span class="chip ${route.status === 'in_progress' ? 'delivery' : 'pending'}">${route.status}</span>
+          </div>
+          <p class="muted">Região: ${route.region}</p>
+          <div class="mini-grid">
+            <div><div class="muted">Pedidos</div><div class="number">${route.totalOrders}</div></div>
+            <div><div class="muted">Distância</div><div class="number">${route.totalDistance}</div></div>
+            <div><div class="muted">ETA</div><div class="number">${route.eta}</div></div>
+            <div><div class="muted">Status</div><div class="number">${route.status}</div></div>
+          </div>
+          <div style="margin-top:12px;">
+            ${route.stops.map((stop, idx) => `<div class="item-line">${idx + 1}. ${stop}</div>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCatalog() {
+      const sizesHtml = db.pizzaSizes.map(s => `
+        <div class="catalog-card">
+          <div class="row-between">
+            <div class="pizza-size-head">
+              ${pizzaDivisionIconSvg(s.maxFlavors)}
+              <strong>${s.name}</strong>
+            </div>
+            <span class="chip">${s.maxFlavors} sabor${s.maxFlavors > 1 ? 'es' : ''}</span>
+          </div>
+          <p class="muted">Código ${s.code} · ${s.slices} fatias · divisão máx. ${s.maxFlavors}</p>
+        </div>
+      `).join('');
+      const productsHtml = db.catalog.map(item => `
+        <div class="catalog-card">
+          <div class="row-between">
+            <strong>${item.name}</strong>
+            <span class="chip">${item.type}</span>
+          </div>
+          <p class="muted">Categoria: ${item.category}</p>
+          <div class="row-between">
+            <span>${money(item.price)}</span>
+            <span class="muted">Preparo: ${item.prep}</span>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('catalogList').innerHTML = sizesHtml + productsHtml;
+    }
+
+    function renderCustomers() {
+      document.getElementById('customerList').innerHTML = db.customers.map(customer => `
+        <div class="customer-card">
+          <strong>${customer.name}</strong>
+          <p class="muted">${customer.phone}</p>
+          <div class="mini-grid">
+            <div><div class="muted">Bairro</div><div class="number">${customer.neighborhood}</div></div>
+            <div><div class="muted">Pedidos</div><div class="number">${customer.orders}</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderSchema() {
+      document.getElementById('databaseSchema').textContent = JSON.stringify(schemaText, null, 2);
+    }
+
+    function bootNavigation() {
+      const buttons = document.querySelectorAll('.nav-btn');
+      const sections = document.querySelectorAll('.section');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          sections.forEach(s => s.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.section).classList.add('active');
+        });
+      });
+    }
+
+    document.getElementById('statusFilter').addEventListener('change', (e) => renderOrders(e.target.value));
+
+    renderDashboard();
+    renderOrders();
+    renderKDS();
+    renderDispatch();
+    renderRoutes();
+    renderCatalog();
+    renderCustomers();
+    renderSchema();
+    bootNavigation();
+  </script>
+</body>
+</html>
